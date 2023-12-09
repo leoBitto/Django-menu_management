@@ -1,0 +1,74 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block content %} 
+<h2 class="text-center fs-1 mx-auto p-4"> {{title}} </h2>
+
+<ul class="list-group list-group-flush m-3 ">
+
+{% if entrees %}
+    <h3 class="text-center fw-bold fs-3 mx-auto p-4"> Antipasti </h3>
+    {% for entree in entrees %}
+        <li class="list-group-item d-flex justify-content-around m-3">
+            <span class="col-6">{{ entree.name }}</span><span class="col-3 text-end"> {{ entree.price }} </span>
+        </li> 
+    {% endfor %}
+{% endif %}
+
+{% if first_dishes %}
+    <h3 class="text-center fw-bold fs-3 mx-auto p-4"> Primi Piatti </h3>
+    {% for first_dish in first_dishes %}
+        <li class="list-group-item d-flex justify-content-around m-3">
+            <span class="col-6">{{ first_dish.name }}</span><span class="col-3 text-end"> {{ first_dish.price }} </span>
+        </li>
+    {% endfor %}
+{% endif %}
+
+{% if second_dishes %}
+    <h3 class="text-center fw-bold fs-3 mx-auto p-4"> Secondi Piatti </h3>
+    {% for second_dish in second_dishes %}
+        <li class="list-group-item d-flex justify-content-around m-3">
+            <span class="col-6">{{ second_dish.name }}</span><span class="col-3 text-end"> {{ second_dish.price }} </span>
+        </li>
+    {% endfor %}
+{% endif %}
+
+{% if side_dishes %}
+    <h3 class="text-center fw-bold fs-3 mx-auto p-4"> Contorni </h3>
+    {% for side_dish in side_dishes %}
+        <li class="list-group-item d-flex justify-content-around m-3">
+            <span class="col-6">{{ side_dish.name }}</span><span class="col-3 text-end"> {{ side_dish.price }} </span>
+        </li>
+    {% endfor %}
+{% endif %}
+
+{% if desserts %}
+    <h3 class="text-center fw-bold fs-3 mx-auto p-4"> Dolci </h3>
+    {% for dessert in desserts %}
+        <li class="list-group-item d-flex justify-content-around m-3">
+            <span class="col-6">{{ dessert.name }}</span><span class="col-3 text-end"> {{ dessert.price }} </span>
+        </li>
+    {% endfor %}
+{% endif %}
+
+<br>
+<br>
+<hr style="height:1px; width:70%; margin:auto; border-width:0; color:black; background-color:black">
+<br>
+
+{% if others %}
+    {% for other in others %}
+            <li class="list-group-item d-flex justify-content-around m-3">
+                <span class="col-6">{{ other.name }}</span><span class="col-3 text-end"> {{ other.price }} </span>
+            </li>
+    {% endfor %}
+{% endif %}
+
+</ul>
+
+<div class="d-grid gap-2" id="call_to_action">
+    <a id="call_link" href="tel:+39{{ phone }}" class="btn btn-outline-dark">Chiamaci!</a>
+</div>
+
+
+{% endblock %}

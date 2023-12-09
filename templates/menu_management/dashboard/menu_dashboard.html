@@ -1,0 +1,83 @@
+{% extends "website/dashboard/dashboard.html" %}
+{% load static %}
+{% block dashboard_app %}
+
+<div class="container mt-5 w-100 mx-auto d-flex align-items-center flex-column">
+
+    <h1 class="mb-4">Menu Management</h1>
+
+    {% for dish_type, dish_items in dish_data.items %}
+        <h2>{{ dish_type.1 }}</h2>
+        <div class="table-responsive w-100 mx-auto mb-3 d-flex align-items-center flex-column">
+            <table class="table table-bordered w-100">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Prezzo</th>
+                        <th>Modifica</th>
+                        <th>Elimina</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dish_item in dish_items %}
+                        <tr>
+                            <td>{{ dish_item.dish.name }}</td>
+                            <td>{{ dish_item.dish.price }}</td>
+                            <td>
+                                <!-- Pulsante per aprire il form di modifica -->
+                                <button type="button" class="btn btn-info" data-bs-toggle="collapse" data-bs-target="#editForm-{{ dish_item.dish.id }}">
+                                    Modifica
+                                </button>
+                                <!-- Form di modifica a scomparsa -->
+                                <div class="collapse" id="editForm-{{ dish_item.dish.id }}">
+                                    <form action="{% url 'menu_management:update_dish' dish_item.dish.id %}" method="post">
+                                        {% csrf_token "edit_csrf_token" %}
+                                        {{ dish_item.form }}
+                                        <button type="submit" class="btn btn-primary">Salva modifiche</button>
+                                    </form>
+                                </div>
+                            </td>
+                            <td>
+                                <!-- Form di eliminazione -->
+                                <form action="{% url 'menu_management:delete_dish' dish_item.dish.id %}" method="post">
+                                    {% csrf_token "delete_csrf_token" %}
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <!-- Pulsante per aprire il form di aggiunta -->
+            <button class="btn btn-primary mt-3" type="button" data-bs-toggle="modal" data-bs-target="#addForm-{{ dish_type.0 }}">
+                <i class="fa-solid fa-plus"></i> Aggiungi {{ dish_type.1 }}
+            </button>
+            
+            <!-- Modal per il form di aggiunta -->
+            <div class="modal fade" id="addForm-{{ dish_type.0 }}" tabindex="-1" aria-labelledby="addFormLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addFormLabel">Aggiungi {{ dish_type.1 }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{% url 'menu_management:add_dish' %}" method="post">
+                                {% csrf_token "add_csrf_token" %}
+                                {{ dish_form }}
+                                <input type="hidden" name="dish_type" value="{{ dish_type.0 }}">
+                                <button type="submit" class="btn btn-primary">Aggiungi</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+
+{% endblock dashboard_app %}
