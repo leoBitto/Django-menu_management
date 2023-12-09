@@ -28,14 +28,6 @@
                                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#editForm-{{ dish_item.dish.id }}">
                                     Modifica
                                 </button>
-                                <!-- Form di modifica a scomparsa -->
-                                <div class="collapse" id="editForm-{{ dish_item.dish.id }}">
-                                    <form action="{% url 'menu_management:update_dish' dish_item.dish.id %}" method="post">
-                                        {% csrf_token "edit_csrf_token" %}
-                                        {{ dish_item.form }}
-                                        <button type="submit" class="btn m-1 btn-sm btn-primary">Salva modifiche</button>
-                                    </form>
-                                </div>
                             </td>
                             <td>
                                 <!-- Form di eliminazione -->
@@ -47,9 +39,18 @@
                                 </form>
                             </td>
                         </tr>
+                        <!-- Form di modifica a scomparsa -->
+                        <div class="collapse" id="editForm-{{ dish_item.dish.id }}">
+                            <form action="{% url 'menu_management:update_dish' dish_item.dish.id %}" method="post">
+                                {% csrf_token "edit_csrf_token" %}
+                                {{ dish_item.form }}
+                                <button type="submit" class="btn m-1 btn-sm btn-primary">Salva modifiche</button>
+                            </form>
+                        </div>
                     {% endfor %}
                 </tbody>
             </table>
+
             
             <!-- Pulsante per aprire il form di aggiunta -->
             <button class="btn btn-primary mt-3" type="button" data-bs-toggle="modal" data-bs-target="#addForm-{{ dish_type.0 }}">
