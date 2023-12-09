@@ -2,7 +2,7 @@
 {% load static %}
 {% block dashboard_app %}
 
-<div class="container mt-5 w-100 mx-auto d-flex align-items-center flex-column">
+<div class="container mt-2 w-100 mx-auto d-flex align-items-center flex-column">
 
     <h1 class="mb-4">Menu Management</h1>
 
@@ -12,10 +12,10 @@
             <table class="table table-bordered w-100">
                 <thead>
                     <tr>
-                        <th>Nome</th>
-                        <th>Prezzo</th>
-                        <th>Modifica</th>
-                        <th>Elimina</th>
+                        <th class="col-6">Nome</th>
+                        <th class="col-2">Prezzo</th>
+                        <th class="col-2"></th>
+                        <th class="col-2"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -25,7 +25,7 @@
                             <td>{{ dish_item.dish.price }}</td>
                             <td>
                                 <!-- Pulsante per aprire il form di modifica -->
-                                <button type="button" class="btn btn-info" data-bs-toggle="collapse" data-bs-target="#editForm-{{ dish_item.dish.id }}">
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#editForm-{{ dish_item.dish.id }}">
                                     Modifica
                                 </button>
                                 <!-- Form di modifica a scomparsa -->
@@ -33,7 +33,7 @@
                                     <form action="{% url 'menu_management:update_dish' dish_item.dish.id %}" method="post">
                                         {% csrf_token "edit_csrf_token" %}
                                         {{ dish_item.form }}
-                                        <button type="submit" class="btn btn-primary">Salva modifiche</button>
+                                        <button type="submit" class="btn m-1 btn-sm btn-primary">Salva modifiche</button>
                                     </form>
                                 </div>
                             </td>
@@ -41,7 +41,7 @@
                                 <!-- Form di eliminazione -->
                                 <form action="{% url 'menu_management:delete_dish' dish_item.dish.id %}" method="post">
                                     {% csrf_token "delete_csrf_token" %}
-                                    <button type="submit" class="btn btn-danger">
+                                    <button type="submit" class="btn btn-sm btn-danger">
                                         <i class="fa fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </form>
