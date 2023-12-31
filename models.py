@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext as _
+
 class DishType(models.TextChoices):
     ENTREE = 'entree', _('Antipasto')
     FIRST_DISH = 'first_dish', _('Primo piatto')
