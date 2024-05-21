@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import DishType, Allergen, Menu, Dish, QuantityIngredient
+from .models import DishType, Menu, Dish, QuantityIngredient
 
 @admin.register(DishType)
 class DishTypeAdmin(admin.ModelAdmin):
@@ -7,10 +7,7 @@ class DishTypeAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     ordering = ('display_order',)
 
-@admin.register(Allergen)
-class AllergenAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',)
+
 
 @admin.register(Menu)
 class MenuAdmin(admin.ModelAdmin):
@@ -26,6 +23,6 @@ class DishAdmin(admin.ModelAdmin):
 
 @admin.register(QuantityIngredient)
 class QuantityIngredientAdmin(admin.ModelAdmin):
-    list_display = ('dish', 'ingredient', 'quantity')
+    list_display = ('dish', 'quantity')
     search_fields = ('dish__name', 'ingredient__name')
-    list_filter = ('dish__menu', 'ingredient')
+    list_filter = ('dish__menu',)
