@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import DishType, Menu, Dish, QuantityIngredient
+from .models import DishType, PDVMenu, EventMenu, Dish, QuantityIngredient
 
 @admin.register(DishType)
 class DishTypeAdmin(admin.ModelAdmin):
@@ -8,12 +8,19 @@ class DishTypeAdmin(admin.ModelAdmin):
     ordering = ('display_order',)
 
 
+@admin.register(EventMenu)
+class MenuEventAdmin(admin.ModelAdmin):
+    list_display = ('name', 'event_date', 'pdv', 'number_of_guests')
+    search_fields = ('name',)
+    list_filter = ('pdv',)
 
-@admin.register(Menu)
+
+@admin.register(PDVMenu)
 class MenuAdmin(admin.ModelAdmin):
     list_display = ('name', 'pdv')
     search_fields = ('name',)
     list_filter = ('pdv',)
+
 
 @admin.register(Dish)
 class DishAdmin(admin.ModelAdmin):

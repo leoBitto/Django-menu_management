@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from pdv_management.models import PDV
-from inventory.models import Ingredient, Preparation
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
@@ -17,24 +16,37 @@ class DishType(models.Model):
         verbose_name_plural = _("Tipi di piatto")
         ordering = ['display_order']
 
-
-class Menu(models.Model):
+class AbstractMenu(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Nome"))
     description = models.TextField(blank=True, verbose_name=_("Descrizione"))
-    pdv = models.ForeignKey(PDV, related_name='menus', on_delete=models.CASCADE, verbose_name=_("PDV"))
-
-    def __str__(self):
-        return self.name
+    pdv = models.ForeignKey(PDV, related_name='%(class)s_menus', on_delete=models.CASCADE, verbose_name=_("PDV"))
 
     class Meta:
-        verbose_name = _("Menu")
-        verbose_name_plural = _("Menu")
+        abstract = True
+
+    def _str_(self):
+        return self.name
+
+
+class PDVMenu(AbstractMenu):
+    class Meta:
+        verbose_name = _("Menu PDV")
+        verbose_name_plural = _("Menu PDV")
+
+
+class EventMenu(AbstractMenu):
+    event_date = models.DateField(verbose_name=_("Data evento"))
+    number_of_guests = models.PositiveIntegerField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = _("Menu Evento")
+        verbose_name_plural = _("Menu Eventi")
 
 
 class Dish(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Nome"))
     procedure = models.TextField(verbose_name=_("Procedimento"))
-    menu = models.ForeignKey(Menu, related_name='dishes', on_delete=models.CASCADE, verbose_name=_("Menu"))
+    menu = models.ForeignKey(AbstractMenu, related_name='dishes', on_delete=models.CASCADE, verbose_name=_("Menu"))
     dish_type = models.ForeignKey(DishType, on_delete=models.SET_NULL, null=True, verbose_name=_("Tipo"))
 
     def __str__(self):
