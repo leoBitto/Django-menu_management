@@ -1,35 +1,32 @@
 from django.contrib import admin
-from .models import DishType, PDVMenu, EventMenu, Dish, QuantityIngredient
+from .models import DishType, Dish, PDVMenu, EventMenu, QuantityIngredient
 
-@admin.register(DishType)
 class DishTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'display_order')
-    search_fields = ('name',)
     ordering = ('display_order',)
 
-
-@admin.register(EventMenu)
-class MenuEventAdmin(admin.ModelAdmin):
-    list_display = ('name', 'event_date', 'pdv', 'number_of_guests')
-    search_fields = ('name',)
-    list_filter = ('pdv',)
-
-
-@admin.register(PDVMenu)
-class MenuAdmin(admin.ModelAdmin):
-    list_display = ('name', 'pdv')
-    search_fields = ('name',)
-    list_filter = ('pdv',)
-
-
-@admin.register(Dish)
 class DishAdmin(admin.ModelAdmin):
-    list_display = ('name', 'menu', 'dish_type')
-    search_fields = ('name', 'menu__name')
-    list_filter = ('menu', 'dish_type')
+    list_display = ('name', 'dish_type')
+    search_fields = ('name', 'procedure')
+    list_filter = ('dish_type',)
 
-@admin.register(QuantityIngredient)
-class QuantityIngredientAdmin(admin.ModelAdmin):
-    list_display = ('dish', 'quantity')
-    search_fields = ('dish__name', 'ingredient__name')
-    list_filter = ('dish__menu',)
+class QuantityIngredientInline(admin.TabularInline):
+    model = QuantityIngredient
+    extra = 1
+
+class PDVMenuAdmin(admin.ModelAdmin):
+    list_display = ('name', 'pdv')
+    search_fields = ('name', 'description')
+    list_filter = ('pdv',)
+    filter_horizontal = ('dishes',)
+
+class EventMenuAdmin(admin.ModelAdmin):
+    list_display = ('name', 'pdv', 'event_date', 'number_of_guests')
+    search_fields = ('name', 'description')
+    list_filter = ('pdv', 'event_date')
+    filter_horizontal = ('dishes',)
+
+admin.site.register(DishType, DishTypeAdmin)
+admin.site.register(Dish, DishAdmin)
+admin.site.register(PDVMenu, PDVMenuAdmin)
+admin.site.register(EventMenu, EventMenuAdmin)
