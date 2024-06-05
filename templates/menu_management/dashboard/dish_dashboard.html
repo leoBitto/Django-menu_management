@@ -1,0 +1,102 @@
+{% extends "website/dashboard/dashboard.html" %}
+{% load static %}
+{% block dashboard_app %}
+
+<script>
+    $(document).ready(function () {
+        $('#searchInput').on('keyup', function () {
+            var query = $(this).val().toLowerCase();
+            $('.dish-item').each(function () {
+                var dishName = $(this).find('.dish-name').text().toLowerCase();
+                if (dishName.includes(query)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+    });
+</script>
+
+<div class="container mt-2 w-100 mx-auto d-flex align-items-center flex-column">
+
+    <div class="container mt-2 w-100 mx-auto">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="mb-4">Gestione Piatti</h1>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#addDishModal">
+                    Aggiungi Piatto
+                </button>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="searchInput" placeholder="Inserisci il nome del piatto">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal per aggiungere un nuovo piatto -->
+    <div class="modal fade" id="addDishModal" tabindex="-1" aria-labelledby="addDishLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addDishLabel">Aggiungi Piatto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'menu_management:dish_add' %}" method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_name" class="form-label">Nome</label>
+                            {{ dish_form.name }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_procedure" class="form-label">Procedimento</label>
+                            <textarea class="form-control" id="id_procedure" name="procedure" rows="5" placeholder="Inserisci il procedimento"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_dish_type" class="form-label">Tipo di Piatto</label>
+                            {{ dish_form.dish_type }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_price" class="form-label">Prezzo</label>
+                            {{ dish_form.price }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Aggiungi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="table-responsive w-100 mx-auto mb-3 d-flex align-items-center flex-column">
+        <table class="table table-bordered w-100">
+            <thead>
+                <tr>
+                    <th class="col-4">Tipo di Piatto</th>
+                    <th class="col-6">Nome</th>
+                    <th class="col-2">Prezzo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dish_type, dish_items in dish_data.items %}
+                    {% for dish_item in dish_items %}
+                        <tr class="dish-item">
+                            <td>{{ dish_type }}</td>
+                            <td><a href="{% url 'menu_management:dish_detail' dish_item.dish_instance.id %}" class="btn btn-link text-decoration-none dish-name">{{ dish_item.dish_instance.name }}</a></td>
+                            <td>{{ dish_item.dish_instance.price }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+{% endblock dashboard_app %}

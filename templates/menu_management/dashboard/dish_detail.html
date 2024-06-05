@@ -1,0 +1,81 @@
+{% extends "website/dashboard/dashboard.html" %}
+{% load static %}
+{% block dashboard_app %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h1 class="mt-4">{{ dish.name }}</h1>
+            <p><strong>Tipo di Piatto:</strong> {{ dish.dish_type }}</p>
+            <p><strong>Prezzo:</strong> {{ dish.price }}</p>
+            <p><strong>Procedimento:</strong></p>
+            <p>{{ dish.procedure }}</p>
+
+
+            <!-- Pulsanti -->
+            <div class="mt-4">
+                <button class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#deleteDishModal">
+                    Elimina Piatto
+                </button>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editDishModal">
+                    Modifica Piatto
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per eliminare il piatto -->
+<div class="modal fade" id="deleteDishModal" tabindex="-1" aria-labelledby="deleteDishLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteDishLabel">Elimina Piatto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler eliminare il piatto?</p>
+                <form action="{% url 'menu_management:dish_delete' dish.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Elimina</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per modificare il piatto -->
+<div class="modal fade" id="editDishModal" tabindex="-1" aria-labelledby="editDishLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editDishLabel">Modifica Piatto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'menu_management:dish_update' dish.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_name" class="form-label">Nome</label>
+                        {{ dish_form.name }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_procedure" class="form-label">Procedimento</label>
+                        <textarea class="form-control" id="id_procedure" name="procedure" rows="5">{{ dish.procedure }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_dish_type" class="form-label">Tipo di Piatto</label>
+                        {{ dish_form.dish_type }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_price" class="form-label">Prezzo</label>
+                        {{ dish_form.price }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salva modifiche</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_app %}

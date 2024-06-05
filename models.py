@@ -14,10 +14,12 @@ class DishType(models.Model):
         verbose_name_plural = _("Tipi di piatto")
         ordering = ['display_order']
 
+
 class Dish(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Nome"))
     procedure = models.TextField(verbose_name=_("Procedimento"))
     dish_type = models.ForeignKey(DishType, on_delete=models.SET_NULL, null=True, verbose_name=_("Tipo"))
+    price = models.DecimalField(max_digits=6, decimal_places=2)
 
     def __str__(self):
         return self.name
@@ -25,6 +27,7 @@ class Dish(models.Model):
     class Meta:
         verbose_name = _("Piatto")
         verbose_name_plural = _("Piatti")
+
 
 class AbstractMenu(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Nome"))
@@ -38,18 +41,22 @@ class AbstractMenu(models.Model):
     def __str__(self):
         return self.name
 
+
 class PDVMenu(AbstractMenu):
     class Meta:
         verbose_name = _("Menu PDV")
         verbose_name_plural = _("Menu PDV")
 
+
 class EventMenu(AbstractMenu):
     event_date = models.DateField(verbose_name=_("Data evento"))
     number_of_guests = models.PositiveIntegerField(blank=True, null=True)
+    price_per_person = models.DecimalField(max_digits=6, decimal_places=2)
 
     class Meta:
         verbose_name = _("Menu Evento")
         verbose_name_plural = _("Menu Eventi")
+
 
 class QuantityIngredient(models.Model):
     dish = models.ForeignKey(Dish, on_delete=models.CASCADE, verbose_name=_("Piatto"))

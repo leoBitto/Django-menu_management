@@ -1,0 +1,79 @@
+{% extends "website/dashboard/dashboard.html" %}
+{% load static %}
+{% block dashboard_app %}
+
+<div class="container mt-2 w-100 mx-auto d-flex align-items-center flex-column">
+
+    <h1 class="mb-4">Gestione Tipologie di Piatti</h1>
+
+    <button class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#addDishTypeModal">
+        Aggiungi Tipologia
+    </button>
+
+    <div class="table-responsive w-100 mx-auto mb-3 d-flex align-items-center flex-column">
+        <table class="table table-bordered w-100">
+            <thead>
+                <tr>
+                    <th class="col-6">Nome</th>
+                    <th class="col-2">Ordine</th>
+                    <th class="col-2"></th>
+                    <th class="col-2"></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for dishtype, data in dishtype_data.items %}
+                <tr>
+                    <td>{{ data.dishtype_instance.name }}</td>
+                    <td>{{ data.dishtype_instance.display_order }}</td>
+                    <td>
+                        <!-- Pulsante per aprire il form di modifica -->
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#editDishTypeForm-{{ data.dishtype_instance.id }}">
+                            Modifica
+                        </button>
+                    </td>
+                    <td>
+                        <!-- Form di eliminazione -->
+                        <form action="{% url 'menu_management:dishtype_delete' data.dishtype_instance.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <!-- Form di modifica a scomparsa -->
+                <tr class="collapse" id="editDishTypeForm-{{ data.dishtype_instance.id }}">
+                    <td colspan="4">
+                        <form action="{% url 'menu_management:dishtype_update' data.dishtype_instance.id %}" method="post">
+                            {% csrf_token %}
+                            {{ data.dishtype_form }}
+                            <button type="submit" class="btn m-1 btn-sm btn-primary">Salva modifiche</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal per aggiungere un nuovo tipo di piatto -->
+<div class="modal fade" id="addDishTypeModal" tabindex="-1" aria-labelledby="addDishTypeLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addDishTypeLabel">Aggiungi Tipologia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'menu_management:dishtype_add' %}" method="post">
+                    {% csrf_token %}
+                    {{ dishtype_form }}
+                    <button type="submit" class="btn btn-primary">Aggiungi</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_app %}
