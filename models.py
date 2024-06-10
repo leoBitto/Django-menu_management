@@ -31,7 +31,7 @@ class Dish(models.Model):
 
 class AbstractMenu(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Nome"))
-    description = models.TextField(blank=True, verbose_name=_("Descrizione"))
+    description = models.TextField(blank=True, null=True, verbose_name=_("Descrizione"))
     pdv = models.ForeignKey(PDV, related_name='%(class)s_menus', on_delete=models.CASCADE, verbose_name=_("PDV"))
     dishes = models.ManyToManyField(Dish, related_name='%(class)s_dishes', verbose_name=_("Piatti"))
 

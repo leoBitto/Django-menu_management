@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from .models import *
+from django.contrib.admin.widgets import FilteredSelectMultiple
 
 
 class DishTypeForm(forms.ModelForm):
@@ -57,17 +58,19 @@ class MenuForm(forms.ModelForm):
             'name': _('Nome'),
             'description': _('Descrizione'),
             'pdv': _('PDV'),
+            'dishes': _('Piatti'),
         }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Inserisci il nome')}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': _('Inserisci la descrizione')}),
             'pdv': forms.Select(attrs={'class': 'form-control'}),
+            'dishes': FilteredSelectMultiple(_('Piatti'), is_stacked=False),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['name'].widget.attrs.update({'placeholder': _('Inserisci il nome')})
-        self.fields['description'].widget.attrs.update({'placeholder': _('Inserisci la descrizione')})
+        self.fields['description'].widget.attrs.update({'placeholder': _('Inserisci la descrizione (Opzionale)')})
 
 
 

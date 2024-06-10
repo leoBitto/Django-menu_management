@@ -4,81 +4,143 @@
 
 <div class="container mt-2 w-100 mx-auto d-flex align-items-center flex-column">
 
-    <h1 class="mb-4">Menu Management</h1>
+    <h1 class="mb-4">Gestione Menu</h1>
 
-    {% for dish_type, dish_items in dish_data.items %}
-        <h2>{{ dish_type.1 }}</h2>
-        <div class="table-responsive w-100 mx-auto mb-3 d-flex align-items-center flex-column">
-            <table class="table table-bordered w-100">
-                <thead>
-                    <tr>
-                        <th class="col-6">Nome</th>
-                        <th class="col-2">Prezzo</th>
-                        <th class="col-2"></th>
-                        <th class="col-2"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for dish_item in dish_items %}
-                        <tr>
-                            <td>{{ dish_item.dish.name }}</td>
-                            <td>{{ dish_item.dish.price }}</td>
-                            <td>
-                                <!-- Pulsante per aprire il form di modifica -->
-                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#editForm-{{ dish_item.dish.id }}">
-                                    Modifica
-                                </button>
-                            </td>
-                            <td>
-                                <!-- Form di eliminazione -->
-                                <form action="{% url 'menu_management:delete_dish' dish_item.dish.id %}" method="post">
-                                    {% csrf_token "delete_csrf_token" %}
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        <!-- Form di modifica a scomparsa -->
-                        <div class="collapse" id="editForm-{{ dish_item.dish.id }}">
-                            <form action="{% url 'menu_management:update_dish' dish_item.dish.id %}" method="post">
-                                {% csrf_token "edit_csrf_token" %}
-                                {{ dish_item.form }}
-                                <button type="submit" class="btn m-1 btn-sm btn-primary">Salva modifiche</button>
-                            </form>
-                        </div>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <button class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#addMenuModal">
+        Aggiungi Menu
+    </button>
 
-            
-            <!-- Pulsante per aprire il form di aggiunta -->
-            <button class="btn btn-primary mt-3" type="button" data-bs-toggle="modal" data-bs-target="#addForm-{{ dish_type.0 }}">
-                <i class="fa-solid fa-plus"></i> Aggiungi {{ dish_type.1 }}
-            </button>
-            
-            <!-- Modal per il form di aggiunta -->
-            <div class="modal fade" id="addForm-{{ dish_type.0 }}" tabindex="-1" aria-labelledby="addFormLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="addFormLabel">Aggiungi {{ dish_type.1 }}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form action="{% url 'menu_management:add_dish' %}" method="post">
-                                {% csrf_token "add_csrf_token" %}
-                                {{ dish_form }}
-                                <input type="hidden" name="dish_type" value="{{ dish_type.0 }}">
-                                <button type="submit" class="btn btn-primary">Aggiungi</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
+    <div class="table-responsive w-100 mx-auto mb-3 d-flex align-items-center flex-column">
+        <table class="table table-bordered w-100">
+            <thead>
+                <tr>
+                    <th class="col-3">Nome</th>
+                    <th class="col-5">Descrizione</th>
+                    <th class="col-2">PDV</th>
+                    <th class="col-2"></th>
+                    <th class="col-2"></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for menu, data in menu_data.items %}
+                <tr>
+                    <td>{{ data.menu_instance.name }}</td>
+                    <td>{{ data.menu_instance.description }}</td>
+                    <td>{{ data.menu_instance.pdv }}</td>
+                    <td>
+                        <!-- Pulsante per aprire il form di modifica -->
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#editMenuForm-{{ data.menu_instance.id }}">
+                            Modifica
+                        </button>
+                    </td>
+                    <td>
+                        <!-- Form di eliminazione -->
+                        <form action="{% url 'menu_management:menu_delete' data.menu_instance.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <!-- Form di modifica a scomparsa -->
+                <tr class="collapse" id="editMenuForm-{{ data.menu_instance.id }}">
+                    <td colspan="5">
+                        <form action="{% url 'menu_management:menu_update' data.menu_instance.id %}" method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ data.menu_form.name.label_tag }}
+                                {{ data.menu_form.name }}
+                            </div>
+                            <div class="mb-3">
+                                {{ data.menu_form.description.label_tag }}
+                                {{ data.menu_form.description }}
+                            </div>
+                            <div class="mb-3">
+                                {{ data.menu_form.pdv.label_tag }}
+                                {{ data.menu_form.pdv }}
+                            </div>
+                            <div class="mb-3">
+                                {{ data.menu_form.dishes.label_tag }}
+                                <!-- Campo di input per filtrare i piatti per nome -->
+                                <input type="text" class="form-control mb-2 dish-filter" placeholder="Filtra piatti per nome">
+                                {{ data.menu_form.dishes }}
+                            </div>
+                            <button type="submit" class="btn m-1 btn-sm btn-primary">Salva modifiche</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
+<!-- Modal per aggiungere un nuovo menu -->
+<div class="modal fade" id="addMenuModal" tabindex="-1" aria-labelledby="addMenuLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addMenuLabel">Aggiungi Menu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'menu_management:menu_add' %}" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ menu_form.name.label_tag }}
+                        {{ menu_form.name }}
+                    </div>
+                    <div class="mb-3">
+                        {{ menu_form.description.label_tag }}
+                        {{ menu_form.description }}
+                    </div>
+                    <div class="mb-3">
+                        {{ menu_form.pdv.label_tag }}
+                        {{ menu_form.pdv }}
+                    </div>
+                    <div class="mb-3">
+                        {{ menu_form.dishes.label_tag }}
+                        <!-- Campo di input per filtrare i piatti per nome -->
+                        <input type="text" id="add-dish-filter" class="form-control mb-2 dish-filter" placeholder="Filtra piatti per nome">
+                        {{ menu_form.dishes }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Aggiungi</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Funzione di filtro
+        function filterDishes(input, selector) {
+            var query = $(input).val().toLowerCase();
+            $(selector).find('option').each(function () {
+                var dishName = $(this).text().toLowerCase();
+                if (dishName.includes(query)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+
+        // Filtra i piatti durante la creazione del menu
+        $('#add-dish-filter').on('keyup', function () {
+            filterDishes(this, '#id_dishes_to');
+        });
+
+        // Filtra i piatti durante la modifica del menu
+        $('.dish-filter').on('keyup', function () {
+            var formId = $(this).closest('form').find('.field-dishes select').attr('id');
+            filterDishes(this, '#' + formId + '_to');
+        });
+
+        // Inizializza il widget FilteredSelectMultiple
+        SelectFilter.init('id_dishes', 'Piatti', 0, '/static/admin/');
+    });
+</script>
 
 {% endblock dashboard_app %}

@@ -1,7 +1,7 @@
 # Esempio di views per la gestione dei piatti
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from .forms import DishForm, DishTypeForm
+from .forms import DishForm, DishTypeForm, MenuForm, EventMenuForm
 from .models import *
 from django.contrib.auth.decorators import login_required
 
@@ -185,26 +185,68 @@ def dish_delete(request, dish_id):
     return redirect('menu_management:dish_dashboard')
 
 
-
-
-
-
-
-
-
-
-
-
-
 @login_required
 def menu_dashboard(request):
+    menu_form = MenuForm()
+    menu_list = PDVMenu.objects.all()
+    menu_data = {}
 
+    for menu in menu_list:
+        menu_data[menu] = {
+            'menu_instance': menu,
+            'menu_form': MenuForm(instance=menu),
+        }
 
-    context = {        
-
- 
+    context = {
+        'menu_data': menu_data,
+        'menu_form': menu_form,
     }
 
     return render(request, 'menu_management/dashboard/menu_dashboard.html', context)
 
+@login_required
+def menu_add(request):
+    if request.method == 'POST':
+        menu_form = MenuForm(request.POST)
 
+        if menu_form.is_valid():
+            menu_form.save()
+            messages.success(request, 'Menu aggiunto con successo.')
+            return redirect('menu_management:pdvmenu_dashboard')
+        else:
+            for field, errors in menu_form.errors.items():
+                for error in errors:
+                    messages.error(request, f"Errore nel campo {field}: {error}")
+            return redirect('menu_management:menu_dashboard')
+    else:
+        return redirect('menu_management:menu_dashboard')
+
+
+@login_required
+def menu_update(request, menu_id):
+    menu = get_object_or_404(PDVMenu, id=menu_id)
+
+    if request.method == 'POST':
+        menu_form = MenuForm(request.POST, instance=menu)
+        if menu_form.is_valid():
+            menu_form.save()
+            messages.success(request, 'Menu aggiornato con successo.')
+            return redirect('menu_management:menu_dashboard')
+        else:
+            for field, errors in menu_form.errors.items():
+                for error in errors:
+                    messages.error(request, f"Errore nel campo {field}: {error}")
+            return redirect('menu_management:pdvmenu_dashboard')
+    else:
+        return redirect('menu_management:menu_dashboard')
+    
+
+@login_required
+def menu_delete(request, menu_id):
+    menu = get_object_or_404(PDVMenu, id=menu_id)
+    if request.method == 'POST':
+        menu.delete()
+        messages.success(request, 'Menu eliminato con successo.')
+    else:
+        messages.error(request, 'Si è verificato un errore. Si prega di riprovare.')
+    return redirect('menu_management:menu_dashboard')
