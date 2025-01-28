@@ -13,7 +13,14 @@
 
     {% for dish_type, dish_items in dish_data.items %}
     <div class="mb-4">
-        <h3 class="h5 mb-3">{{ dish_type.1 }}</h3>
+        <div class="d-flex justify-content-evenly align-items-center py-2 mb-2 bg-dark rounded-3">
+            <h3 class="h5 mb-0 text-white">{{ dish_type.1 }}</h3>
+            <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal"
+                data-bs-target="#addFormModal-{{ dish_type.0 }}">
+                <i class="fas fa-plus me-2"></i> Aggiungi {{ dish_type.1 }}
+            </button>
+        </div>
+        
         <div class="row justify-content-center">
             {% for dish_item in dish_items %}
             <div class="col-12 col-lg-10">
@@ -22,17 +29,17 @@
                         <!-- Layout desktop: tutto in linea -->
                         <div class="d-none d-md-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0 flex-grow-1">{{ dish_item.dish.name }}</h5>
-                            <span class="text-primary fw-bold mx-4">{{ dish_item.dish.price }}</span>
+                            <span class="fw-bold mx-4">{{ dish_item.dish.price }}</span>
                             <div class="d-flex gap-2">
                                 <button class="btn btn-outline-dark" data-bs-toggle="modal"
                                     data-bs-target="#editFormModal-{{ dish_item.dish.id }}">
-                                    <i class="fas fa-edit me-1"></i> Modifica
+                                    <i class="fas fa-edit me-1"></i>
                                 </button>
                                 <form action="{% url 'menu_management:dish_action' dish_item.dish.id %}" method="post">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="delete">
                                     <button type="submit" class="btn btn-outline-dark">
-                                        <i class="fas fa-trash-alt me-1"></i> Elimina
+                                        <i class="fas fa-trash-alt me-1"></i> 
                                     </button>
                                 </form>
                             </div>
@@ -41,20 +48,20 @@
                         <!-- Layout mobile: nome e prezzo in linea, bottoni sotto -->
                         <div class="d-md-none">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="card-title mb-0">{{ dish_item.dish.name }}</h5>
-                                <span class="text-primary fw-bold ms-2">{{ dish_item.dish.price }}</span>
+                                <h5 class="card-title fs-6 mb-0">{{ dish_item.dish.name }}</h5>
+                                <span class="fs-6 fw-bold ms-2">{{ dish_item.dish.price }}</span>
                             </div>
                             <div class="d-flex gap-2">
-                                <button class="btn btn-outline-dark flex-grow-1" data-bs-toggle="modal"
+                                <button class="btn btn-sm btn-outline-dark flex-grow-1" data-bs-toggle="modal"
                                     data-bs-target="#editFormModal-{{ dish_item.dish.id }}">
-                                    <i class="fas fa-edit me-1"></i> Modifica
+                                    <i class="fas fa-edit me-1"></i> 
                                 </button>
                                 <form action="{% url 'menu_management:dish_action' dish_item.dish.id %}" method="post"
                                     class="flex-grow-1">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="delete">
-                                    <button type="submit" class="btn btn-outline-dark w-100">
-                                        <i class="fas fa-trash-alt me-1"></i> Elimina
+                                    <button type="submit" class="btn btn-sm btn-outline-dark w-100">
+                                        <i class="fas fa-trash-alt me-1"></i> 
                                     </button>
                                 </form>
                             </div>
@@ -97,13 +104,6 @@
             {% endfor %}
         </div>
 
-
-        <div class="text-center mt-3">
-            <button class="btn btn-outline-dark" data-bs-toggle="modal"
-                data-bs-target="#addFormModal-{{ dish_type.0 }}">
-                <i class="fas fa-plus me-2"></i> Aggiungi {{ dish_type.1 }}
-            </button>
-        </div>
 
         <!-- Modal di aggiunta -->
         <div class="modal fade" id="addFormModal-{{ dish_type.0 }}" tabindex="-1">
