@@ -1,124 +1,122 @@
-# Esempio di views per la gestione dei piatti
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.views import View
 from .forms import DishForm
-from .models import *
-from django.contrib.auth.decorators import login_required
-from website.models import Contact
+from .models import Dish, DishType
 
-## menu
-def menu(request):
+class MenuView(View):
+    template_name = 'menu_management/menu.html'
 
-    entrees = Dish.objects.filter(dish_type=DishType.ENTREE)
-    first_dishes = Dish.objects.filter(dish_type=DishType.FIRST_DISH)
-    second_dishes = Dish.objects.filter(dish_type=DishType.SECOND_DISH)
-    side_dishes = Dish.objects.filter(dish_type=DishType.SIDE_DISH)
-    desserts = Dish.objects.filter(dish_type=DishType.DESSERT)
-    others = Dish.objects.filter(dish_type=DishType.OTHER)
+    def get(self, request, *args, **kwargs):
+        dishes_by_type = {
+            dish_type: Dish.get_current_version(dish_type=dish_type)
+            for dish_type in DishType.values
+        }
 
+        context = {
+            'dishes_by_type': dishes_by_type,
+            'title': 'Il nostro Menù',
+        }
+        return render(request, self.template_name, context)
 
-    contact = Contact.objects.first()
+class WineView(View):
+    template_name = 'menu_management/wine.html'
 
-    context={
-        'entrees':entrees,
-        'first_dishes':first_dishes,
-        'second_dishes':second_dishes,
-        'side_dishes':side_dishes,
-        'desserts':desserts,
-        'others':others,
-        'title':'Il nostro Menù',
-        'phone':contact.phone,
-    }
+    def get(self, request, *args, **kwargs):
+        context = {
+            'title': 'Il nostro Vino',
+        }
+        return render(request, self.template_name, context)
 
-    return render(request, 'menu_management/menu.html', context)
+class DishView(LoginRequiredMixin, View):
+    template_name = 'menu_management/backoffice/menu_backoffice.html'
 
-## menu
-def wine(request):
-    contact = Contact.objects.first()
-    context={
-        'title':'Il nostro Vino',
-        'phone':contact.phone,
-    }
+    def get(self, request, *args, **kwargs):
+        context = {
+            'dish_data': self._get_dish_data(),
+            'dish_form': DishForm(),
+        }
+        return render(request, self.template_name, context)
 
-    return render(request, 'menu_management/wine.html', context)
-
-
-# VIEWS PER MENU
-###
-# this view show the menu on the dashboard
-###
-@login_required
-def menu_dashboard(request):
-
-    dish_form = DishForm()
-    
-    dish_types = DishType.choices
-    dish_data = {}
-    
-    for dish_type in dish_types:
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get('action', 'create')
         
-        dishes = Dish.objects.filter(dish_type=dish_type[0])
+        if action == 'create':
+            return self._handle_create(request)
+        
+        dish_id = kwargs.get('pk')
+        if not dish_id:
+            messages.error(request, 'ID piatto mancante.')
+            return redirect('menu_management:menu_backoffice')
+            
+        dish = get_object_or_404(Dish, id=dish_id, is_deleted=False)
+        
+        handlers = {
+            'update': self._handle_update,
+            'delete': self._handle_delete
+        }
+        
+        handler = handlers.get(action)
+        if not handler:
+            messages.error(request, 'Azione non valida.')
+            return redirect('menu_management:menu_backoffice')
+            
+        return handler(request, dish)
 
-        # Creare una lista per ogni categoria di piatti
-        dish_data[dish_type] = []
+    def _get_dish_data(self):
+        """Recupera i dati dei piatti organizzati per tipo."""
+        return {
+            dish_type: [
+                {
+                    'dish': dish,
+                    'form': DishForm(instance=dish),
+                }
+                for dish in Dish.get_current_version(dish_type=dish_type[0])
+            ]
+            for dish_type in DishType.choices
+        }
 
-        for dish in dishes:
-            dish_form_instance = get_object_or_404(Dish, id=dish.id)
-            dish_data[dish_type].append({
-                'dish': dish,
-                'form': DishForm(instance=dish_form_instance),
-            })
-
-    context = {        
-
-        'dish_data': dish_data,
-        'dish_form':dish_form,
-    }
-
-    return render(request, 'menu_management/dashboard/menu_dashboard.html', context)
-
-
-@login_required
-def add_dish(request):
-    if request.method == 'POST':
+    def _handle_create(self, request):
+        """Gestisce la creazione di un nuovo piatto."""
         form = DishForm(request.POST)
-
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Piatto aggiunto con successo.')
-            return redirect('menu_management:menu_dashboard')
+            try:
+                form.save()
+                messages.success(request, 'Piatto aggiunto con successo.')
+            except Exception as e:
+                messages.error(request, f'Errore durante il salvataggio: {str(e)}')
         else:
-            messages.error(request, 'Si è verificato un errore. Si prega di correggere il modulo.')
-            return render(request, 'menu_management/dashboard/menu_dashboard.html', {'form': form})
-    else:
-        form = DishForm()
-        return render(request, 'menu_management/dashboard/menu_dashboard.html', {'form': form})
+            self._add_form_errors(form)
+        return redirect('menu_management:menu_backoffice')
 
-
-@login_required
-def update_dish(request, dish_id):
-    dish = get_object_or_404(Dish, id=dish_id)
-
-    if request.method == 'POST':
+    def _handle_update(self, request, dish):
+        """Gestisce l'aggiornamento di un piatto esistente."""
         form = DishForm(request.POST, instance=dish)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Piatto aggiornato con successo.')
-            return redirect('menu_management:menu_dashboard')
+            try:
+                form.save()
+                messages.success(request, 'Piatto aggiornato con successo.')
+            except ValueError as e:
+                messages.error(request, f'Errore durante l\'aggiornamento: {str(e)}')
         else:
-            messages.error(request, 'Si è verificato un errore. Si prega di correggere il modulo.')
-            return render(request, 'menu_management/dashboard/menu_dashboard.html', {'form': form})
-    else:
-        form = DishForm(instance=dish)
-        return render(request, 'menu_management/dashboard/menu_dashboard.html', {'form': form})
+            self._add_form_errors(form)
+        return redirect('menu_management:menu_backoffice')
 
+    def _handle_delete(self, request, dish):
+        """Gestisce l'eliminazione soft di un piatto."""
+        try:
+            dish.delete()
+            messages.success(request, 'Piatto eliminato con successo.')
+        except Exception as e:
+            messages.error(request, f'Errore durante l\'eliminazione: {str(e)}')
+        return redirect('menu_management:menu_backoffice')
 
-@login_required
-def delete_dish(request, dish_id):
-    dish = get_object_or_404(Dish, id=dish_id)
-
-    dish.delete()
-    messages.success(request, 'Piatto eliminato con successo.')
-    return redirect('menu_management:menu_dashboard')
-
-
+    def _add_form_errors(self, form):
+        """Aggiunge gli errori del form ai messaggi."""
+        error_message = ', '.join(
+            f'{field}: {error}' 
+            for field, errors in form.errors.items() 
+            for error in errors
+        )
+        messages.error(request, f'Si è verificato un errore: {error_message}')

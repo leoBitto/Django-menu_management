@@ -1,0 +1,89 @@
+{% extends "backoffice/backoffice.html" %}
+{% load static %}
+
+{% block main %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4">Gestione Menù</h2>
+        <a href="{% url 'backoffice:backoffice' %}" class="btn btn-outline-dark">
+            <i class="fa-solid fa-reply me-2"></i>
+            <span class="d-none d-md-inline">Indietro</span>
+        </a>
+    </div>
+
+    {% for dish_type, dish_items in dish_data.items %}
+        <div class="mb-4">
+            <h3 class="h5">{{ dish_type.1 }}</h3>
+            <div class="row gy-3">
+                {% for dish_item in dish_items %}
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ dish_item.dish.name }}</h5>
+                                <p class="card-text">Prezzo: {{ dish_item.dish.price }}</p>
+                                <div class="d-flex justify-content-between">
+                                    <!-- Pulsante per modificare -->
+                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editFormModal-{{ dish_item.dish.id }}">
+                                        <i class="fas fa-edit me-1"></i> Modifica
+                                    </button>
+                                    <!-- Pulsante per eliminare -->
+                                    <form action="{% url 'menu_management:delete_dish' dish_item.dish.id %}" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash-alt me-1"></i> Elimina
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal di modifica -->
+                    <div class="modal fade" id="editFormModal-{{ dish_item.dish.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Modifica {{ dish_item.dish.name }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="{% url 'menu_management:update_dish' dish_item.dish.id %}" method="post">
+                                        {% csrf_token %}
+                                        {{ dish_item.form.as_p }}
+                                        <button type="submit" class="btn btn-primary">Salva modifiche</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pulsante per aggiungere un nuovo piatto -->
+            <button class="btn btn-dark mt-3" data-bs-toggle="modal" data-bs-target="#addFormModal-{{ dish_type.0 }}">
+                <i class="fas fa-plus me-2"></i> Aggiungi {{ dish_type.1 }}
+            </button>
+
+            <!-- Modal di aggiunta -->
+            <div class="modal fade" id="addFormModal-{{ dish_type.0 }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Aggiungi {{ dish_type.1 }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{% url 'menu_management:add_dish' %}" method="post">
+                                {% csrf_token %}
+                                {{ dish_form.as_p }}
+                                <input type="hidden" name="dish_type" value="{{ dish_type.0 }}">
+                                <button type="submit" class="btn btn-dark">Aggiungi</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
