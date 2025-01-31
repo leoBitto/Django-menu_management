@@ -83,6 +83,7 @@
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="update">
                                 {% for field in dish_item.form %}
+                                {% if field.name != "dish_type" %}
                                 <div class="mb-3">
                                     {{ field.label_tag }}
                                     {{ field }}
@@ -118,6 +119,7 @@
                             {% csrf_token %}
                             <input type="hidden" name="action" value="create">
                             {% for field in dish_form %}
+                            {% if field.name != "dish_type" %}
                             <div class="mb-3">
                                 {{ field.label_tag }}
                                 {{ field }}
