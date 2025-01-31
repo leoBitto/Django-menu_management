@@ -83,14 +83,15 @@
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="update">
                                 {% for field in dish_item.form %}
-                                {% if field.name != "dish_type" %}
-                                <div class="mb-3">
-                                    {{ field.label_tag }}
-                                    {{ field }}
-                                    {% if field.help_text %}
-                                    <div class="form-text">{{ field.help_text }}</div>
+                                    {% if field.name != "dish_type" %}
+                                    <div class="mb-3">
+                                        {{ field.label_tag }}
+                                        {{ field }}
+                                        {% if field.help_text %}
+                                        <div class="form-text">{{ field.help_text }}</div>
+                                        {% endif %}
+                                    </div>
                                     {% endif %}
-                                </div>
                                 {% endfor %}
                             </div>
                             <div class="modal-footer bg-dark">
@@ -119,14 +120,15 @@
                             {% csrf_token %}
                             <input type="hidden" name="action" value="create">
                             {% for field in dish_form %}
-                            {% if field.name != "dish_type" %}
-                            <div class="mb-3">
-                                {{ field.label_tag }}
-                                {{ field }}
-                                {% if field.help_text %}
-                                <div class="form-text">{{ field.help_text }}</div>
+                                {% if field.name != "dish_type" %}
+                                <div class="mb-3">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text }}</div>
+                                    {% endif %}
+                                </div>
                                 {% endif %}
-                            </div>
                             {% endfor %}
                             <input type="hidden" name="dish_type" value="{{ dish_type.0 }}">
                         </div>
