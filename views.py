@@ -9,15 +9,22 @@ from .models import Dish, DishType
 class MenuView(View):
     template_name = 'menu_management/menu.html'
 
+
     def get(self, request, *args, **kwargs):
-        dishes_by_type = {
-            dish_type: Dish.get_current_version(dish_type=dish_type)
-            for dish_type in DishType.values
+        # Singola query per tutti i piatti
+        all_dishes = Dish.get_current_version()
+        
+        # Organizziamo i piatti per tipo
+        context = {
+            'entrees': all_dishes.filter(dish_type=DishType.ENTREE),
+            'first_dishes': all_dishes.filter(dish_type=DishType.FIRST_DISH),
+            'second_dishes': all_dishes.filter(dish_type=DishType.SECOND_DISH),
+            'side_dishes': all_dishes.filter(dish_type=DishType.SIDE_DISH),
+            'desserts': all_dishes.filter(dish_type=DishType.DESSERT),
+            'others': all_dishes.filter(dish_type=DishType.OTHER),
         }
-        return render(request, self.template_name, {
-            'dishes_by_type': dishes_by_type,
-            'title': 'Il nostro Menù',
-        })
+        
+        return render(request, self.template_name, context)
 
 class WineView(View):
     template_name = 'menu_management/wine.html'
