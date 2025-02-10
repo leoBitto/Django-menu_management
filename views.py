@@ -81,7 +81,7 @@ class DishView(LoginRequiredMixin, View):
             except Exception as e:
                 messages.error(request, f'Errore durante il salvataggio: {str(e)}')
         else:
-            self._add_form_errors(form)
+            self._add_form_errors(request, form)
         return redirect('menu_management:menu_backoffice')
 
     def _handle_update(self, request, dish):
@@ -93,7 +93,7 @@ class DishView(LoginRequiredMixin, View):
             except ValueError as e:
                 messages.error(request, f'Errore durante l\'aggiornamento: {str(e)}')
         else:
-            self._add_form_errors(form)
+            self._add_form_errors(request, form)
         return redirect('menu_management:menu_backoffice')
 
     def _handle_delete(self, request, dish):
@@ -104,7 +104,7 @@ class DishView(LoginRequiredMixin, View):
             messages.error(request, f'Errore durante l\'eliminazione: {str(e)}')
         return redirect('menu_management:menu_backoffice')
 
-    def _add_form_errors(self, form):
+    def _add_form_errors(self, request, form):
         error_message = ', '.join(
             f'{field}: {error}' 
             for field, errors in form.errors.items() 
